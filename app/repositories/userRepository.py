@@ -54,21 +54,26 @@ def updateUser (user_id, name=None, email=None, password=None):
 
             if password: data["password"] = password
 
-            data_pair = []
+            fields = []
+
+            values = list(data.values())
+
+            values.append(user_id)
 
             for d in data:
 
-                data_pair[len(data_pair)] = (d, data[d], user_id)
+                fields.append(f"{d} = ?")
+
 
             sql = f"""
 
                 UPDATE users
-                SET {", ".join()}
+                SET {", ".join(fields)}
                 WHERE id = ? RETURNING id;
 
             """
 
-            cursor.executemany(sql, data_pair)
+            cursor.execute(sql, tuple(values))
 
             return cursor.fetchone()
 

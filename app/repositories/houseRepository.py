@@ -67,21 +67,25 @@ def updateHouse (house_id, address=None, color=None):
 
             if color: data["color"] = color
 
-            data_pair = []
+            fields = []
+
+            values = list(data.values())
+
+            values.append(house_id)
 
             for d in data:
 
-                data_pair[len(data_pair)] = (d, data[d], house_id)
+                fields.append(f"{d} = ?")
 
-            sql = """
+            sql = f"""
 
                 UPDATE houses
-                SET ? = ?
+                SET {", ".join(fields)}
                 WHERE id = ? RETURNING id;
 
             """
 
-            cursor.executemany(sql, data_pair)
+            cursor.execute(sql, tuple(values))
 
             return cursor.fetchone()
 
