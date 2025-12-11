@@ -13,7 +13,7 @@ def getData (user_id):
 
             """
 
-            cursor.execute(sql, (user_id))
+            cursor.execute(sql, (user_id,))
 
             return cursor.fetchone()
 
@@ -91,6 +91,6 @@ def deleteUser (user_id):
 
             """
 
-            cursor.execute(sql, (user_id))
+            cursor.execute(sql, (user_id,))
 
             return True # Success

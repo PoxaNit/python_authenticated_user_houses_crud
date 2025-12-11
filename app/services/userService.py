@@ -4,12 +4,29 @@ from app.utils.validateEmail import validateEmail
 
 def getData (user_id):
 
-    return userRepository.getData(user_id)
+    user_data = userRepository.getData(user_id)
 
+    data = {
+      "user_data": user_data
+    }
+
+    return {
+      "message": "OK",
+      "success": True,
+      "data": data,
+      "status": 200
+    }
 
 def createUser (name, email, password):
 
-    if not validateEmail(email): return False
+    if not validateEmail(email):
+
+        return {
+          "message": "Invalid email",
+          "success": False,
+          "data": None,
+          "status": 400
+        }
 
     with pool.get_connection() as conn:
 
@@ -22,18 +39,57 @@ def createUser (name, email, password):
 
             """
 
-            cursor.execute(sql, (email))
+            cursor.execute(sql, (email,))
 
-            if cursor.fetchone(): return False # User already exists
+            if cursor.fetchone():
 
-    return userRepository.createUser(name, email, password)
+                return {
+                  "message": "User already exists!",
+                  "success": False,
+                  "data": None,
+                  "status": 409
+                }
+
+            user_id = userRepository.createUser(name, email, password)
+
+            data = {
+              "user_data": None
+            }
+
+            sql = """
+
+                SELECT * FROM users
+                WHERE id = ?;
+
+            """
+
+            cursor.execute(sql, (user_id,))
+
+            user_data = cursor.fetchone()
+
+            data["user_data"] = user_data
+
+            return {
+              "message": "CREATED!",
+              "success": True,
+              "data": data,
+              "status": 201
+            }
+
 
 
 def updateUser (user_id, name, email, password):
 
     if email:
 
-        if not validateEmail(email): return False # Unsuccess
+        if not validateEmail(email):
+
+            return {
+              "message": "Invalid email",
+              "success": False,
+              "data": None,
+              "status": 400
+            }
 
     with pool.get_connection() as conn:
 
@@ -46,11 +102,43 @@ def updateUser (user_id, name, email, password):
 
             """
 
-            cursor.execute(sql, (user_id))
+            cursor.execute(sql, (user_id,))
 
-            if not cursor.fetchone(): return False # User not found
+            if not cursor.fetchone():
 
-    return userRepository.updateUser(user_id, name, email, password)
+                return {
+                  "message": "User not found",
+                  "success": False,
+                  "data": None,
+                  "status": 404
+                }
+
+            data = {
+              "user_data": None
+            }
+
+            userRepository.updateUser(user_id, name, email, password)
+
+            sql = """
+
+                SELECT * FROM users
+                WHERE id = ?;
+
+            """
+
+            cursor.execute(sql, (user_id,))
+
+            user_data = cursor.fetchone()
+
+            data["user_data"] = user_data
+
+            return {
+              "message": "UPDATED!",
+              "success": True,
+              "data": data,
+              "status": 200
+             }
+
 
 
 def deleteUser (user_id):
@@ -66,8 +154,22 @@ def deleteUser (user_id):
 
             """
 
-            cursor.execute(sql, (user_id))
+            cursor.execute(sql, (user_id,))
 
-            if not cursor.fetchone(): return False # User not found
+            if not cursor.fetchone():
 
-    return userRepository.deleteUser(user_id)
+                return {
+                  "message": "User not found!",
+                  "success": False,
+                  "data": None,
+                  "status": 404
+                }
+
+            userRepository.deleteUser(user_id)
+
+            return {
+              "message": "DELETED!",
+              "success": True,
+              "data": None,
+              "status": 200
+            }

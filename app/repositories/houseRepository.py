@@ -14,7 +14,7 @@ def getAll (user_id):
 
             """
 
-            cursor.execute(sql, (user_id))
+            cursor.execute(sql, (user_id,))
 
             return cursor.fetchall()
 
@@ -103,6 +103,6 @@ def deleteHouse (house_id):
 
             """
 
-            cursor.execute(sql, (house_id))
+            cursor.execute(sql, (house_id,))
 
             return True # Success
