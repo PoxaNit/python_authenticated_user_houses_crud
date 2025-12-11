@@ -52,7 +52,7 @@ def createHouse (user_id, address, color):
 
             cursor.execute(sql, (user_id, address, color))
 
-            return cursor.fetchone()
+            return cursor.fetchone()[0]
 
 
 def updateHouse (house_id, address=None, color=None):
@@ -87,7 +87,7 @@ def updateHouse (house_id, address=None, color=None):
 
             cursor.execute(sql, tuple(values))
 
-            return cursor.fetchone()
+            return cursor.fetchone()[0]
 
 
 def deleteHouse (house_id):
